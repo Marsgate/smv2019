@@ -20,16 +20,4 @@ class Coil{
 	void set(int polarity);
 };
 
-/*
-class CoilController{
-	Coil *_a;
-	Coil *_b;
-	Coil *_c;
-	public:
-		CoilController(Coil a, Coil b, Coil c);
-		void update(int rotation);
-		void setSpeed(int motorSpeed);
-};
-*/
-
 #endif

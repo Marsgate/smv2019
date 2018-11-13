@@ -39,4 +39,3 @@ int HallSensorController::getRotation(){
 	}
 	return index;
 }
-

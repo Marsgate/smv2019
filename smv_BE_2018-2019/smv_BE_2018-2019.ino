@@ -21,7 +21,6 @@ Coil c(5, 3, 4);
 
 /*********************************/
 //coil control functions
-
 void coilSet(int motorSpeed){
   a.motorSpeed = motorSpeed;
   b.motorSpeed = motorSpeed;
@@ -35,6 +34,13 @@ void coilUpdate(int rotation){
 }
 
 /*********************************/
+//interrupt function
+void hallISR(){
+  int rotation = hall.getRotation();
+  coilUpdate(rotation);
+}
+
+/*********************************/
 //main setup and loop
 
 void setup(){
@@ -42,44 +48,14 @@ void setup(){
 
   //lcd init
   lcd.begin(16, 2);
+
+  a.set(0);
+  b.set(0);
+  c.set(0);
 }
 
 void loop(){
-  int coilSpeed = 120;
-  int rotation = hall.getRotation();
-  coilUpdate(rotation);
+  int coilSpeed = getThrottle();
 
-  /*
-  static unsigned long totalTime = 21 * 60000; //minutes * millis
-  static unsigned long lastDisplayedTime;
-  unsigned long timeRemainingMillis = totalTime - millis();
   
-  if(timeRemainingMillis <= lastDisplayedTime - 1000){
-    lcd.setCursor(2,0);
-    lcd.print("     "); // five spaces to clear old time
-
-    int minutes = timeRemainingMillis / 60000;
-    int seconds  = timeRemainingMillis % minutes;
-    lcd.setCursor(2,0);
-    lcd.print(minutes);
-    lcd.print(":");
-    lcd.print(seconds);
-
-    lastDisplayedTime = minutes*60000 + seconds*1000
-  }
-  */
-
-  /* throttle
-  //coil speed feedback
-  static int lcs;
-  if(coilSpeed != lcs){
-    lcs = coilSpeed;
-    lcd.clear();
-    lcd.print("Speed ");
-    lcd.print(lcs*100/255);
-    lcd.print("%");
-  }
-  */
 }
-
-

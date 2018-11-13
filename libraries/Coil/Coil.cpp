@@ -36,34 +36,3 @@ void Coil::update(int index){
 	
 	set(posmap[index]);
 }
-
-
-/*
-void Coil::setSpeed(int motorSpeed){
-	Serial.print(_motorSpeed);
-	Serial.println();
-	
-	//_motorSpeed = motorSpeed;
-}
-*/
-
-
-/*
-CoilController::CoilController(Coil a, Coil b, Coil c){
-	_a = &a;
-	_b = &b;
-	_c = &c;
-}
-
-
-void CoilController::update(int rotation){
-	_a->update(rotation);
-	//_b->update(rotation + 2);
-	//_c->update(rotation + 4);
-}
-
-void CoilController::setSpeed(int motorSpeed){
-	_motorSpeed = motorSpeed;
-}
-
-*/
