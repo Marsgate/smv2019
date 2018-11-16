@@ -3,12 +3,12 @@
 
 void HallSensor::setup(int pin)
 {
-  pinMode(pin, INPUT_PULLUP);
+  pinMode(pin, INPUT);
   _pin = pin;
 }
 
 int HallSensor::pull(){
-	if(analogRead(_pin) > 30)
+	if(digitalRead(_pin))
 		return 0;
 	else
 		return 1;
@@ -22,7 +22,7 @@ HallSensorController::HallSensorController(int pin1, int pin2, int pin3){
 
 int HallSensorController::pull(){
 	int flags = _h1.pull() | _h2.pull() << 1 | _h3.pull() << 2;
-	
+	//Serial.println(flags, BIN);
     return flags;
 }
 
