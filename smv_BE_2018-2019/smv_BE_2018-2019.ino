@@ -20,6 +20,7 @@
 
 int lastTime = 0;
 
+SPISettings spi_settings(160000, MSBFIRST, SPI_MODE1); 
 
 /*********************************/
 //library configuration and object creation
@@ -31,10 +32,17 @@ int lastTime = 0;
 HallSensorController hall(HALL1, HALL2, HALL3);
 
 // Coil setup (positive, negative, offset)
-Coil a(29, 30, 0);
-Coil b(14, 2, 2);
+Coil a(30, 29, 0);
+Coil b(2, 14, 2);
 Coil c(6, 5, 4);
 
+/*********************************/
+//spi
+int spiRead(){
+  SPI.beginTransaction(spi_settings);
+  int result = SPI.transfer(0);
+  return result;
+}
 
 /*********************************/
 //coil control functions
@@ -59,23 +67,24 @@ void coilUpdate(int rotation){
 void hallISR(){
   int rotation = hall.getRotation();
   //Serial.println(rotation);
-  //coilUpdate(rotation);
+  coilUpdate(rotation);
 }
 
 /*********************************/
 //main setup and loop
 
 void setup(){
+  delay(50);
+  
   Serial.begin(9600);
 
   //pin mode setting
-  pinMode(13, OUTPUT);
   pinMode(EN_GATE, OUTPUT);
   pinMode(NFAULT, INPUT);
   pinMode(LED1, OUTPUT);
   pinMode(NOTCW, INPUT);
   pinMode(LED2, OUTPUT);
-  
+  pinMode(SS, OUTPUT);
   
 
   //lcd init
@@ -83,25 +92,27 @@ void setup(){
 
   //enable gate 
   digitalWrite(EN_GATE, HIGH);
-
-  //enable power led
-  digitalWrite(13, HIGH);
+  
+  //start spi
+  SPI.begin();
+  
   
 
   a.set(0);
   b.set(0);
   c.set(0);
 
+  /*
   attachInterrupt(HALL1, hallISR, CHANGE);
   attachInterrupt(HALL2, hallISR, CHANGE);
   attachInterrupt(HALL3, hallISR, CHANGE);
+  */
 }
 
 void loop(){
 
   int curTime = millis();
   if(curTime - lastTime > 50){
-    
     if(!digitalRead(NFAULT))
       digitalWrite(LED1, HIGH);
 
@@ -112,6 +123,8 @@ void loop(){
     hallISR();
     lastTime = curTime;
   }
-  
+
+  spiRead();
+
   delay(1);  
 }
