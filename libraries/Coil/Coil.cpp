@@ -16,13 +16,13 @@ void Coil::set(int polarity){
 	Serial.print(polarity);
 	Serial.print(", ");
 	analogWrite(_pos, 0);
-	digitalWrite(_neg, 0);
+	digitalWriteFast(_neg, 0);
 	
 	if(polarity == 1)
 		analogWrite(_pos, motorSpeed);
 	
 	if(polarity == -1)
-		digitalWrite(_neg, 1);
+		digitalWriteFast(_neg, 1);
 }
 
 void Coil::update(int index){

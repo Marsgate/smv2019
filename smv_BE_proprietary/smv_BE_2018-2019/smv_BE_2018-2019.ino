@@ -18,9 +18,11 @@
 #define LED1 7
 #define LED2 8
 
+#define DRV_SS 10
+
 int lastTime = 0;
 
-SPISettings spi_settings(160000, MSBFIRST, SPI_MODE1); 
+SPISettings spi_settings(2000000, MSBFIRST, SPI_MODE1); 
 
 /*********************************/
 //library configuration and object creation
@@ -38,10 +40,20 @@ Coil c(6, 5, 4);
 
 /*********************************/
 //spi
-int spiRead(){
+uint16_t spiRead(uint8_t addr)
+{
   SPI.beginTransaction(spi_settings);
-  int result = SPI.transfer(0);
-  return result;
+  delayMicroseconds(50);
+  digitalWrite(DRV_SS, LOW);
+
+  delayMicroseconds(50);
+  SPI.transfer(addr);
+  uint16_t resp = SPI.transfer(0);
+
+  digitalWrite(SS, HIGH);
+  SPI.endTransaction();
+
+  return resp;
 }
 
 /*********************************/
@@ -84,7 +96,7 @@ void setup(){
   pinMode(LED1, OUTPUT);
   pinMode(NOTCW, INPUT);
   pinMode(LED2, OUTPUT);
-  pinMode(SS, OUTPUT);
+  pinMode(DRV_SS, OUTPUT);
   
 
   //lcd init
@@ -124,7 +136,7 @@ void loop(){
     lastTime = curTime;
   }
 
-  spiRead();
+  Serial.println(spiRead(0x01), BIN);
 
   delay(1);  
 }

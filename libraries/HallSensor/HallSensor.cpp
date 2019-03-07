@@ -8,7 +8,7 @@ void HallSensor::setup(int pin)
 }
 
 int HallSensor::pull(){
-	if(digitalRead(_pin))
+	if(digitalReadFast(_pin))
 		return 0;
 	else
 		return 1;
@@ -21,14 +21,15 @@ HallSensorController::HallSensorController(int pin1, int pin2, int pin3){
 }
 
 int HallSensorController::pull(){
-	int flags = _h1.pull() | _h2.pull() << 1 | _h3.pull() << 2;
+	int flags = _h3.pull() | _h2.pull() << 1 | _h1.pull() << 2;
 	//Serial.println(flags, BIN);
     return flags;
 }
 
 int HallSensorController::getRotation(){
 	int arraySize = 6;
-	int order[arraySize] = {4,6,2,3,1,5};
+	int order[arraySize] = {6,2,1,4,5,3};
+	//int order[arraySize] = {4,6,2,3,1,5}; //older order
 	int flags = pull();
 	int index = -1;
 	for (int i=0; i<arraySize; i++) {
