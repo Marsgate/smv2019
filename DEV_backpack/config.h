@@ -1,7 +1,7 @@
 #define INHA 6
 #define INLA 5
 #define INHB 4 
-#define INLB 0
+#define INLB 1
 #define INHC 3
 #define INLC 2
 
@@ -11,13 +11,13 @@
 
 #define THROTTLE 15
 
-#define DRV_EN_GATE 7
-#define DRV_CS 10
+#define DRV_EN_GATE 2
+#define DRV_CS 14
 #define DRV_MOSI 11
 #define DRV_MISO 12
 #define DRV_CLK 13
 
-#define FAULT 9
+#define FAULT 0
 #define ISENSE1 23
 
 #define LED 13
@@ -104,6 +104,7 @@ void setupPins()
 
 uint16_t SPIread(uint8_t addr)
 {
+  delayMicroseconds(50);
   digitalWrite(DRV_CS, LOW);
 
   delayMicroseconds(50);

@@ -7,22 +7,21 @@
 
 /*********************************/
 //Pin definitions
-#define HALL1 24
-#define HALL2 25
-#define HALL3 26
+#define HALL1 22
+#define HALL2 21
+#define HALL3 20
 
-#define EN_GATE 22
-#define NFAULT 20
-#define NOTCW 21
+#define EN_GATE 2
+#define NFAULT 0
 
-#define LED1 7
-#define LED2 8
+#define LED1 1
 
-#define DRV_SS 10
+#define DRV_MOSI 11
+#define DRV_MISO 12
+#define DRV_CLK 13
+#define DRV_CS 14
 
 int lastTime = 0;
-
-SPISettings spi_settings(2000000, MSBFIRST, SPI_MODE1); 
 
 /*********************************/
 //library configuration and object creation
@@ -34,27 +33,9 @@ SPISettings spi_settings(2000000, MSBFIRST, SPI_MODE1);
 HallSensorController hall(HALL1, HALL2, HALL3);
 
 // Coil setup (positive, negative, offset)
-Coil a(30, 29, 0);
-Coil b(2, 14, 2);
-Coil c(6, 5, 4);
-
-/*********************************/
-//spi
-uint16_t spiRead(uint8_t addr)
-{
-  SPI.beginTransaction(spi_settings);
-  delayMicroseconds(50);
-  digitalWrite(DRV_SS, LOW);
-
-  delayMicroseconds(50);
-  SPI.transfer(addr);
-  uint16_t resp = SPI.transfer(0);
-
-  digitalWrite(SS, HIGH);
-  SPI.endTransaction();
-
-  return resp;
-}
+Coil a(10, 9, 0);
+Coil b(6, 5, 2);
+Coil c(4, 3, 4);
 
 /*********************************/
 //coil control functions
@@ -88,31 +69,42 @@ void hallISR(){
 void setup(){
   delay(50);
   
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   //pin mode setting
   pinMode(EN_GATE, OUTPUT);
   pinMode(NFAULT, INPUT);
   pinMode(LED1, OUTPUT);
-  pinMode(NOTCW, INPUT);
-  pinMode(LED2, OUTPUT);
-  pinMode(DRV_SS, OUTPUT);
+  
+  pinMode(DRV_MOSI, OUTPUT);
+  pinMode(DRV_MISO, INPUT);
+  pinMode(DRV_CLK, OUTPUT);
+  pinMode(DRV_CS, OUTPUT);
+
+  digitalWrite(DRV_CS, HIGH);
   
 
   //lcd init
   //lcd.begin(16, 2);
 
   //enable gate 
-  digitalWrite(EN_GATE, HIGH);
+  digitalWriteFast(EN_GATE, LOW);
+  delay(10);
+  digitalWriteFast(EN_GATE, HIGH);
+  delay(10);
   
   //start spi
   SPI.begin();
+  SPI.setClockDivider(SPI_CLOCK_DIV128);
+  SPI.setDataMode(SPI_MODE1);
   
   
 
   a.set(0);
   b.set(0);
   c.set(0);
+
+  //a.set(10);
 
   /*
   attachInterrupt(HALL1, hallISR, CHANGE);
@@ -121,22 +113,62 @@ void setup(){
   */
 }
 
+/*
+void spiRead(byte addr){
+
+  uint16_t dataToSend = 0x0;
+  dataToSend |= (0x0010 | addr);
+  dataToSend <<= 11;
+  //Serial.println(dataToSend, BIN);
+  
+  SPI.beginTransaction(spi_settings);
+  digitalWrite(DRV_CS, LOW);
+  
+
+  Serial.println(SPI.transfer16(dataToSend), BIN);
+
+  digitalWrite(DRV_CS, HIGH);
+  SPI.endTransaction();
+}*/
+
+uint16_t SPIread(uint8_t addr)
+{
+  digitalWrite(DRV_CS, LOW);
+
+  delayMicroseconds(50);
+  uint8_t d = 1 << 7;
+  d |= addr << 3;
+  SPI.transfer(d);
+  SPI.transfer(0);
+
+  digitalWrite(DRV_CS, HIGH);
+  delayMicroseconds(30);
+  digitalWrite(DRV_CS, LOW);
+  
+  d = SPI.transfer(1<<7);
+  uint16_t resp = d << 8;
+  resp |= SPI.transfer(0);
+
+  digitalWrite(DRV_CS, HIGH);
+
+  return resp & 0x7FF;
+}
+
 void loop(){
 
   int curTime = millis();
   if(curTime - lastTime > 50){
+
+    Serial.println(SPIread(0x0), BIN);
+    
     if(!digitalRead(NFAULT))
       digitalWrite(LED1, HIGH);
-
-    //digitalWrite(LED2, !digitalRead(NOTCW));
     
-    int coilSpeed = 120;
+    int coilSpeed = 20;
     coilSet(coilSpeed);
-    hallISR();
+    //hallISR();
     lastTime = curTime;
   }
-
-  Serial.println(spiRead(0x01), BIN);
 
   delay(1);  
 }

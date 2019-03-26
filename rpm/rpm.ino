@@ -3,7 +3,7 @@
 //I2C pins declaration
 LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE); 
 
-const int rpmSensor = 3; //IR sensor INPUT
+const int rpmSensor = 3;//IR sensor INPUT
 
 
 unsigned long lastRev = 0;
@@ -27,7 +27,7 @@ void addRev(){
 void setup()
 {
   lcd.begin(16,2);
-  pinMode(rpmSensor,INPUT);       
+  pinMode(rpmSensor, INPUT_PULLUP);       
   Serial.begin(9600);
   attachInterrupt(digitalPinToInterrupt(rpmSensor), addRev, RISING);
 }
@@ -35,7 +35,7 @@ void setup()
 void loop()
 {
   if(singleRev && digitalRead(rpmSensor) == LOW){
-    Serial.println(revs);
+    //Serial.println(revs);
     revs ++;
     singleRev = false;
   }
@@ -51,7 +51,7 @@ void loop()
   }
 
   if(millis() - lastUpdate > 200){
-    //Serial.println(rpm,DEC);
+    Serial.println(rpm,DEC);
     if(abs(lastrpm - rpm) < 200){
       lcd.clear();
       lcd.setCursor(0, 1);
