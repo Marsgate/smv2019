@@ -10,7 +10,7 @@ void setup() {
 
 void loop() {
   //get throttle
-  int scaledThrottle = (1000 - analogRead(throttleIn))* 0.28686868686;
+  int scaledThrottle = (analogRead(throttleIn) - 195)*0.3885;
   
   if(scaledThrottle < 0)
     scaledThrottle = 0;

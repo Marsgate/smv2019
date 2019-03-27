@@ -5,5 +5,5 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  analogWrite(9, 100);
+  analogWrite(9, 255);
 }
